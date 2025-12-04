@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
-from tensorflow import keras
+import keras
 from typing import Tuple, Dict, Any
 import numpy as np
 
@@ -78,11 +78,11 @@ def train_model(X: np.ndarray, y: np.ndarray, model_type: str = "random_forest",
         X_test_scaled = scaler.transform(X_test)
         
         model = create_neural_network(X_train_scaled.shape[1])
-        model.fit(X_train_scaled, y_train, epochs=50, batch_size=32, verbose=0)
+        model.fit(X_train_scaled, y_train, epochs=50, batch_size=32, verbose=1) # type: ignore
         
         metrics = {
-            "train_loss": float(model.evaluate(X_train_scaled, y_train, verbose=0)[0]),
-            "test_loss": float(model.evaluate(X_test_scaled, y_test, verbose=0)[0]),
+            "train_loss": float(model.evaluate(X_train_scaled, y_train, verbose=1)[0]), # type: ignore
+            "test_loss": float(model.evaluate(X_test_scaled, y_test, verbose=1)[0]), # type: ignore
         }
     else:
         model = create_sklearn_model(model_type)

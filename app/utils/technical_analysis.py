@@ -83,7 +83,7 @@ def add_bollinger_bands(data: pd.DataFrame, period: int = 20,
     """
     df = data.copy()
     
-    bb_result = ta.bbands(df['Close'], length=period, std=std_dev)
+    bb_result = ta.bbands(df['Close'], length=period, lower_std=std_dev)
     df = df.join(bb_result)
     
     return df
@@ -139,40 +139,40 @@ def add_stochastic(data: pd.DataFrame, k_period: int = 14,
     return df
 
 
-def calculate_all_indicators(data: pl.DataFrame) -> pl.DataFrame:
-    """
-    Calculate all common technical indicators
+# def calculate_all_indicators(data: pl.DataFrame) -> pl.DataFrame:
+#     """
+#     Calculate all common technical indicators
     
-    Args:
-        data: DataFrame with OHLC data
+#     Args:
+#         data: DataFrame with OHLC data
     
-    Returns:
-        DataFrame with all indicators
-    """
-    df = data.to_pandas() if isinstance(data, pl.DataFrame) else data
+#     Returns:
+#         DataFrame with all indicators
+#     """
+#     df = data.to_pandas() if isinstance(data, pl.DataFrame) else data
     
-    # Moving averages
-    df['SMA_20'] = ta.sma(df['Close'], length=20)
-    df['SMA_50'] = ta.sma(df['Close'], length=50)
-    df['EMA_12'] = ta.ema(df['Close'], length=12)
+#     # Moving averages
+#     df['SMA_20'] = ta.sma(df['Close'], length=20)
+#     df['SMA_50'] = ta.sma(df['Close'], length=50)
+#     df['EMA_12'] = ta.ema(df['Close'], length=12)
     
-    # Momentum indicators
-    df['RSI_14'] = ta.rsi(df['Close'], length=14)
-    macd_result = ta.macd(df['Close'], fast=12, slow=26, signal=9)
-    df = df.join(macd_result)
+#     # Momentum indicators
+#     df['RSI_14'] = ta.rsi(df['Close'], length=14)
+#     macd_result = ta.macd(df['Close'], fast=12, slow=26, signal=9)
+#     df = df.join(macd_result)
     
-    # Volatility
-    bb_result = ta.bbands(df['Close'], length=20, std=2)
-    df = df.join(bb_result)
+#     # Volatility
+#     bb_result = ta.bbands(df['Close'], length=20, std=2)
+#     df = df.join(bb_result)
     
-    # Volume-based (if Volume column exists)
-    if 'Volume' in df.columns:
-        df['OBV'] = ta.obv(df['Close'], df['Volume'])
+#     # Volume-based (if Volume column exists)
+#     if 'Volume' in df.columns:
+#         df['OBV'] = ta.obv(df['Close'], df['Volume'])
     
-    # Trend
-    df['ATR_14'] = ta.atr(df['High'], df['Low'], df['Close'], length=14)
+#     # Trend
+#     df['ATR_14'] = ta.atr(df['High'], df['Low'], df['Close'], length=14)
     
-    return pl.from_pandas(df) if isinstance(data, pl.DataFrame) else df
+#     return pl.from_pandas(df) if isinstance(data, pl.DataFrame) else df
 
 
 def get_signal_summary(data: pd.DataFrame) -> Dict[str, str]:

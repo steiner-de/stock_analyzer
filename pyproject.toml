@@ -63,10 +63,6 @@ packages = ["app", "app.ui", "app.server", "app.utils"]
 [tool.setuptools.package-data]
 app = ["py.typed"]
 
-[tool.black]
-line-length = 100
-target-version = ['py39', 'py310', 'py311']
-
 [tool.mypy]
 python_version = "3.9"
 warn_return_any = true

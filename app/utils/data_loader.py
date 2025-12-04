@@ -21,7 +21,7 @@ def fetch_stock_data(symbol: str, period: str = "1y") -> pd.DataFrame:
     """
     try:
         data = yf.download(symbol, period=period, progress=False)
-        return data.reset_index()
+        return data.reset_index() # type: ignore
     except Exception as e:
         raise ValueError(f"Failed to fetch data for {symbol}: {str(e)}")
 

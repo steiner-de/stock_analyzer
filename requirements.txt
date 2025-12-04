@@ -8,8 +8,9 @@ pandas_ta==0.4.71b0
 edgartools==4.33.1
 zipline-reloaded==3.1.1
 yfinance==0.2.66
-numpy==2.3.5
+numpy==2.2.6
 pandas==2.3.3
+
 
 # Development & Linting
 ruff==0.1.8

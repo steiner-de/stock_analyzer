@@ -26,7 +26,7 @@ def test_create_neural_network():
 
 def test_train_model():
     """Test model training"""
-    X, y = make_regression(n_samples=100, n_features=10, random_state=42)
+    X, y = make_regression(n_samples=100, n_features=10, random_state=42) # type: ignore
     
     model, metrics = train_model(X, y, model_type="random_forest")
     
@@ -37,7 +37,7 @@ def test_train_model():
 
 def test_predict_stock_price():
     """Test stock price prediction"""
-    X, y = make_regression(n_samples=100, n_features=10, random_state=42)
+    X, y = make_regression(n_samples=100, n_features=10, random_state=42) # type: ignore
     
     model, _ = train_model(X, y, model_type="random_forest")
     
