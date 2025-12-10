@@ -1,7 +1,7 @@
 """
 Fundamental analysis utilities for Stock Analyzer
 """
-
+from edgar import Company, set_identity
 import pandas as pd
 from typing import Dict, Any, Optional
 
@@ -116,7 +116,8 @@ def calculate_fair_market_value(stock_data: Dict[str, Any]) -> Optional[float]:
     pass
 
 
-def calculate_discounted_cash_flow(stock_data: Dict[str, Any]) -> Optional[float]:
+def calculate_discounted_cash_flow(stock_data: Dict[str, Any], 
+                                   discount_rate: float=0.05) -> Optional[float]:
     """
     Calculate years until earnings pay back the investor
     
@@ -133,9 +134,11 @@ def calculate_discounted_cash_flow(stock_data: Dict[str, Any]) -> Optional[float
     pass
 
 
-def calculate_price_to_buy(stock_data: Dict[str, Any]) -> Optional[float]:
+def calculate_price_to_buy(stock_data: Dict[str, Any],
+                           desired_annual_return: float=0.15,
+                           discount_price: float=0.5) -> Optional[float]:
     """
-    Calculate the target price to buy the stock
+    Calculate the target price to buy the stock with a margin of safety
     
     TODO: Implement your target price logic here
     Examples:
@@ -145,13 +148,77 @@ def calculate_price_to_buy(stock_data: Dict[str, Any]) -> Optional[float]:
     
     Args:
         stock_data: Dictionary with stock data
+        desired_annual_return: Desired annual return rate
+        discount_percentage: Margin of safety percentage
     
     Returns:
         Recommended buy price or None
     """
     # Placeholder - implement your calculation
     pass
+def calculate_rate(period: str="annual",
+                   timeframe: int=10,
+                   present_value: float=0.0,
+                   future_value: float=0.0) -> float:
+    """
+    Determine the number of periods in a year
+    
+    Args:
+        period: Time period ("annual", "quarterly")
+    
+    Returns:
+        Rate of return
+    """
+    if period == "annual":
+        num_periods = 1 * timeframe
+    elif period == "quarterly":
+        num_periods = 4 * timeframe
+    else:
+        raise ValueError("Unsupported period type. Use 'annual' or 'quarterly'.")
+    
+    # Calcuate the growth rate
+    return ((future_value / present_value) ** (1 / num_periods)) - 1
 
+def calculate_growth_rates(company_ticker: str|None=None, 
+                          period: str="annual",
+                          currency: str="USD",
+                          timeframe: int=10) -> dict:
+    """
+    Calculate growth rates for financial data
+    
+    Args:
+        company_ticker: Ticker symbol of the company
+        period: Time period ("annual", "quarterly")
+        currency: Currency for financial data
+        timeframe: Number of years for the growth rate calculation
+    Returns:
+        Dictionary with growth rates
+    """
+    if company_ticker is None:
+        print("Company ticker is required for growth rate calculation.")
+        return {}
+    
+    # Intialize Edgartools
+    set_i
+    
+    # Placeholder for growth rate calculations
+    growth_rates = {
+        "metadata": {
+            "period": period,
+            "currency": currency,
+            "timeframe": timeframe,
+        },
+        "growth_rates":{
+            "equity": 0.0,
+            "eps": 0.0,
+            "cash_flow": 0.0,
+            "sales": 0.0
+        }  
+    }
+    for metric in growth_rates["growth_rates"]:
+        # Implement your logic to calculate growth rates
+        growth_rates["growth_rates"][metric] = calculate_rate(period, timeframe)
+    return growth_rates
 
 def calculate_financial_ratios(income_stmt: pd.DataFrame, balance_sheet: pd.DataFrame) -> Dict[str, float]:
     """

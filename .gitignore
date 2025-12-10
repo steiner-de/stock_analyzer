@@ -49,6 +49,23 @@ data/cache/
 *.parquet
 *.csv
 
+# Secrets and sensitive information
+config/secrets.py
+config/*.secret
+.env
+.env.local
+.env.*.local
+credentials.json
+
+# Logs
+*.log
+logs/
+
+# Cache
+.cache/
+__pycache__/
+*.pyc
+
 # Model files
 models/trained/
 *.pkl

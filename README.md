@@ -75,6 +75,19 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
+5. **Set up secrets configuration** (required):
+   - Copy `config/secrets.example.py` to `config/secrets.py`
+   - Edit `config/secrets.py` and add your SEC email (required by SEC regulations)
+   - Never commit `config/secrets.py` to version control
+   
+   ```bash
+   # Copy the example file
+   cp config/secrets.example.py config/secrets.py
+   
+   # Edit with your credentials
+   # nano config/secrets.py  (or use your preferred editor)
+   ```
+
 ## Running the App
 
 ```bash

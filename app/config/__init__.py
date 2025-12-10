@@ -14,6 +14,17 @@ from .settings import (
     get_model_path,
 )
 
+# Try to import secrets (optional - only if secrets.py exists)
+try:
+    from .secrets import SEC_EMAIL, API_KEYS, DATABASE, FEATURES
+    HAS_SECRETS = True
+except ImportError:
+    HAS_SECRETS = False
+    SEC_EMAIL = None
+    API_KEYS = {}
+    DATABASE = {}
+    FEATURES = {}
+
 __all__ = [
     "THEME",
     "COLORS",
@@ -28,4 +39,10 @@ __all__ = [
     "TA_CONFIG",
     "get_data_path",
     "get_model_path",
+    "SEC_EMAIL",
+    "API_KEYS",
+    "DATABASE",
+    "FEATURES",
+    "HAS_SECRETS",
 ]
+
