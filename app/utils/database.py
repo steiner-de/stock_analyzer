@@ -4,11 +4,12 @@ Database initialization and management for Stock Analyzer
 
 import sqlite3
 from pathlib import Path
-from datetime import datetime
-from config.settings import get_data_path
+from datetime import datetime, timedelta
+from typing import Optional
+from config.settings import PROCESSED_DATA_DIR
 
 
-DB_PATH = Path(get_data_path()) / "stock_analyzer.db"
+DB_PATH = PROCESSED_DATA_DIR / "stock_analyzer.db"
 
 
 def get_db_connection():
@@ -72,7 +73,7 @@ def init_db():
     conn.close()
 
 
-def get_cache(key: str) -> str | None:
+def get_cache(key: str) -> Optional[str]:
     """Retrieve value from cache if not expired"""
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -95,7 +96,6 @@ def set_cache(key: str, value: str, ttl_hours: int = 24) -> None:
     
     expires_at = None
     if ttl_hours:
-        from datetime import timedelta
         expires_at = (datetime.now() + timedelta(hours=ttl_hours)).isoformat()
     
     cursor.execute('''
@@ -107,7 +107,7 @@ def set_cache(key: str, value: str, ttl_hours: int = 24) -> None:
     conn.close()
 
 
-def clear_cache(key: str|None = None) -> None:
+def clear_cache(key: Optional[str] = None) -> None:
     """Clear cache entries"""
     conn = get_db_connection()
     cursor = conn.cursor()

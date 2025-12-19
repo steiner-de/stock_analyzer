@@ -4,11 +4,15 @@ Fundamental analysis utilities for Stock Analyzer
 from edgar import Company, set_identity
 import pandas as pd
 from typing import Dict, Any, Optional
+import os
 
+# Initialize EdgarTools with SEC_EMAIL from environment variable
+SEC_EMAIL = os.getenv("SEC_EMAIL", "your-email@example.com")
+set_identity(SEC_EMAIL)
 
 def analyze_fundamentals(
     stock_data: Dict[str, Any],
-    current_price: Optional[float] = None
+    current_price: Optional[float|None] = None
 ) -> Dict[str, Any]:
     """
     Perform comprehensive fundamental analysis on stock
@@ -199,26 +203,95 @@ def calculate_growth_rates(company_ticker: str|None=None,
         return {}
     
     # Intialize Edgartools
-    set_i
+    try:
+        company = Company(company_ticker)
+        
+        # Fetch 10-K filings (annual reports)
+        ten_ks = company.get_filings(form="10-K").latest(timeframe)
+        
+        # Extract financial data from filings
+        financials = []
+        for filing in ten_ks:
+            try:
+                income_stmt = filing.income_statement()
+                balance_sheet = filing.balance_sheet()
+                cash_flow = filing.cash_flow()
+                
+                # Calculate metrics from financial statements
+                financials.append({
+                    "period": filing.filing_date,
+                    "revenue": income_stmt.get("revenues", 0) if income_stmt is not None else 0,
+                    "net_income": income_stmt.get("net_income", 0) if income_stmt is not None else 0,
+                    "total_assets": balance_sheet.get("assets", 0) if balance_sheet is not None else 0,
+                    "total_liabilities": balance_sheet.get("liabilities", 0) if balance_sheet is not None else 0,
+                    "operating_cash_flow": cash_flow.get("operating", 0) if cash_flow is not None else 0,
+                })
+            except Exception as e:
+                print(f"Error extracting data from filing: {e}")
+                continue
+        
+        # Calculate growth rates from historical data
+        if len(financials) >= 2:
+            # Sort by period (oldest first)
+            financials = sorted(financials, key=lambda x: x["period"])
+            
+            # Calculate year-over-year growth rates
+            growth_rates["growth_rates"]["sales"] = calculate_growth_rate(
+                financials[-1]["revenue"], 
+                financials[0]["revenue"], 
+                timeframe
+            )
+            growth_rates["growth_rates"]["equity"] = calculate_growth_rate(
+                financials[-1]["total_assets"] - financials[-1]["total_liabilities"],
+                financials[0]["total_assets"] - financials[0]["total_liabilities"],
+                timeframe
+            )
+            growth_rates["growth_rates"]["cash_flow"] = calculate_growth_rate(
+                financials[-1]["operating_cash_flow"],
+                financials[0]["operating_cash_flow"],
+                timeframe
+            )
+    except Exception as e:
+        print(f"Error fetching EdgarTools data for {company_ticker}: {e}")
     
-    # Placeholder for growth rate calculations
-    growth_rates = {
-        "metadata": {
-            "period": period,
-            "currency": currency,
-            "timeframe": timeframe,
-        },
-        "growth_rates":{
-            "equity": 0.0,
-            "eps": 0.0,
-            "cash_flow": 0.0,
-            "sales": 0.0
-        }  
-    }
-    for metric in growth_rates["growth_rates"]:
-        # Implement your logic to calculate growth rates
-        growth_rates["growth_rates"][metric] = calculate_rate(period, timeframe)
     return growth_rates
+
+
+def calculate_rate(period: str, timeframe: int) -> float:
+    """
+    Calculate rate of change
+    
+    Args:
+        period: Time period type
+        timeframe: Number of years
+    
+    Returns:
+        Calculated rate as float
+    """
+    # Placeholder calculation - replace with your logic
+    return 0.0
+
+
+def calculate_growth_rate(current_value: float, prior_value: float, years: int) -> float:
+    """
+    Calculate compound annual growth rate (CAGR)
+    
+    Args:
+        current_value: Current period value
+        prior_value: Prior period value
+        years: Number of years between periods
+    
+    Returns:
+        CAGR as decimal (e.g., 0.15 for 15%)
+    """
+    if prior_value == 0 or years == 0:
+        return 0.0
+    
+    try:
+        cagr = ((current_value / prior_value) ** (1 / years)) - 1
+        return round(cagr, 4)
+    except (ValueError, ZeroDivisionError):
+        return 0.0
 
 def calculate_financial_ratios(income_stmt: pd.DataFrame, balance_sheet: pd.DataFrame) -> Dict[str, float]:
     """

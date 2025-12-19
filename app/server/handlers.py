@@ -67,9 +67,13 @@ def setup_handlers(input, output, session):
             try:
                 # Fetch data
                 data = fetch_stock_data(symbol)
+                if data is None:
+                    analysis_results.set(False)
+                    return
                 
                 # Perform analysis
-                results = analyze_fundamentals(data)
+                results = analyze_fundamentals(stock_data=data,
+                                               current_price=0)
                 
                 # Store results in reactive value
                 analysis_results.set(results)

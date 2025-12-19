@@ -6,9 +6,10 @@ import yfinance as yf
 import pandas as pd
 from pathlib import Path
 from datetime import datetime, timedelta
+from typing import Dict, Any, Optional
 
 
-def fetch_stock_data(symbol: str, period: str = "1y") -> pd.DataFrame:
+def fetch_stock_data(symbol: str, period: str = "1y") -> Dict[str, Any]:
     """
     Fetch stock data using yfinance
     
@@ -17,10 +18,11 @@ def fetch_stock_data(symbol: str, period: str = "1y") -> pd.DataFrame:
         period: Data period (e.g., '1y', '5y')
     
     Returns:
-        Pandas DataFrame with stock data
+        Dictionary with stock data
     """
     try:
-        data = yf.download(symbol, period=period, progress=False)
+        hist_data = yf.download(symbol, period=period, progress=False)
+        curr_data = yf.Ticker(symbol).history(period)
         return data.reset_index() # type: ignore
     except Exception as e:
         raise ValueError(f"Failed to fetch data for {symbol}: {str(e)}")

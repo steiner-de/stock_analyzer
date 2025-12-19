@@ -3,7 +3,8 @@ UI pages and components for Stock Analyzer
 """
 
 from shiny import ui
-from config import APP_NAME, COLORS, SPACING
+from config.settings import APP_NAME
+from config.theme import COLORS, SPACING
 from ui.components import (
     card,
     button_primary,
@@ -219,6 +220,148 @@ def create_ui():
             )
         ),
         
+        # Valuation page
+        ui.nav_panel(
+            "Valuations",
+            ui.div(
+                section_header(
+                    "Valuation Analysis",
+                    "Growth rates and target prices for informed investment decisions"
+                ),
+                ui.layout_sidebar(
+                    ui.sidebar(
+                        ui.input_text(
+                            "valuation_symbol",
+                            "Stock Symbol",
+                            placeholder="e.g., AAPL"
+                        ),
+                        button_primary("Calculate", "calculate_valuations_btn"),
+                        alert("Select a stock to view detailed valuation metrics", alert_type="info"),
+                        width="300px",
+                    ),
+                    ui.div(
+                        # GROWTH RATES SECTION - Top
+                        ui.div(
+                            ui.h3("Growth Rate Assumptions", style=f"margin-bottom: {SPACING['lg']}; color: {COLORS['primary']};"),
+                            ui.div(
+                                # 10-Year Cap Price Growth
+                                card(
+                                    ui.div(
+                                        ui.span("10-Year Cap Growth", style="font-weight: 600; display: block; margin-bottom: 0.5rem;"),
+                                        ui.span(ui.output_text("growth_10yr_cap"), style=f"font-size: 2rem; font-weight: 700; color: {COLORS['success']};"),
+                                        ui.p("Annual growth rate for 10-year valuation", style=f"color: {COLORS['gray']}; font-size: 0.85rem; margin-top: {SPACING['sm']};"),
+                                        style=f"text-align: center; padding: {SPACING['lg']};"
+                                    ),
+                                    style="border-left: 4px solid " + COLORS['success']
+                                ),
+                                # Fair Market Value Growth
+                                card(
+                                    ui.div(
+                                        ui.span("Fair Value Growth", style="font-weight: 600; display: block; margin-bottom: 0.5rem;"),
+                                        ui.span(ui.output_text("growth_fair_value"), style=f"font-size: 2rem; font-weight: 700; color: {COLORS['info']};"),
+                                        ui.p("Annual growth rate for intrinsic value", style=f"color: {COLORS['gray']}; font-size: 0.85rem; margin-top: {SPACING['sm']};"),
+                                        style=f"text-align: center; padding: {SPACING['lg']};"
+                                    ),
+                                    style="border-left: 4px solid " + COLORS['info']
+                                ),
+                                # Payback Period Growth
+                                card(
+                                    ui.div(
+                                        ui.span("Payback Growth", style="font-weight: 600; display: block; margin-bottom: 0.5rem;"),
+                                        ui.span(ui.output_text("growth_payback"), style=f"font-size: 2rem; font-weight: 700; color: {COLORS['warning']};"),
+                                        ui.p("Annual growth rate for earnings payback", style=f"color: {COLORS['gray']}; font-size: 0.85rem; margin-top: {SPACING['sm']};"),
+                                        style=f"text-align: center; padding: {SPACING['lg']};"
+                                    ),
+                                    style="border-left: 4px solid " + COLORS['warning']
+                                ),
+                                # Price to Buy Growth
+                                card(
+                                    ui.div(
+                                        ui.span("Buy Price Growth", style="font-weight: 600; display: block; margin-bottom: 0.5rem;"),
+                                        ui.span(ui.output_text("growth_buy_price"), style=f"font-size: 2rem; font-weight: 700; color: {COLORS['primary']};"),
+                                        ui.p("Annual growth rate for recommended entry", style=f"color: {COLORS['gray']}; font-size: 0.85rem; margin-top: {SPACING['sm']};"),
+                                        style=f"text-align: center; padding: {SPACING['lg']};"
+                                    ),
+                                    style="border-left: 4px solid " + COLORS['primary']
+                                ),
+                                style=f"display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: {SPACING['lg']};"
+                            ),
+                            style=f"margin-bottom: {SPACING['2xl']};"
+                        ),
+                        
+                        # TARGET PRICES BREAKDOWN SECTION
+                        ui.div(
+                            ui.h3("Target Price Breakdown", style=f"margin-bottom: {SPACING['lg']}; color: {COLORS['primary']};"),
+                            ui.div(
+                                # Current Price Holder
+                                card(
+                                    ui.div(
+                                        ui.div(
+                                            ui.span("Current Market Price", style="font-weight: 600; display: block; margin-bottom: 0.5rem;"),
+                                            ui.span(ui.output_text("price_current"), style=f"font-size: 1.75rem; font-weight: 700; color: {COLORS['primary']};"),
+                                            style=f"padding: {SPACING['md']}; text-align: center; background: {COLORS['light']}; border-radius: var(--border-radius-md);"
+                                        ),
+                                        style=f"padding: {SPACING['lg']};"
+                                    ),
+                                ),
+                                # 10-Year Cap Price Holder
+                                card(
+                                    ui.div(
+                                        ui.div(
+                                            ui.span("10-Year Cap Price", style="font-weight: 600; display: block; margin-bottom: 0.5rem;"),
+                                            ui.span(ui.output_text("price_10yr_cap"), style=f"font-size: 1.75rem; font-weight: 700; color: {COLORS['success']};"),
+                                            ui.p("Max price to pay based on 10-year growth", style=f"color: {COLORS['gray']}; font-size: 0.85rem; margin-top: {SPACING['sm']};"),
+                                            style=f"padding: {SPACING['md']}; text-align: center; background: {COLORS['light']}; border-radius: var(--border-radius-md);"
+                                        ),
+                                        style=f"padding: {SPACING['lg']};"
+                                    ),
+                                ),
+                                # Fair Market Value Holder
+                                card(
+                                    ui.div(
+                                        ui.div(
+                                            ui.span("Fair Market Value", style="font-weight: 600; display: block; margin-bottom: 0.5rem;"),
+                                            ui.span(ui.output_text("price_fair_value"), style=f"font-size: 1.75rem; font-weight: 700; color: {COLORS['info']};"),
+                                            ui.p("Intrinsic value from fundamental analysis", style=f"color: {COLORS['gray']}; font-size: 0.85rem; margin-top: {SPACING['sm']};"),
+                                            style=f"padding: {SPACING['md']}; text-align: center; background: {COLORS['light']}; border-radius: var(--border-radius-md);"
+                                        ),
+                                        style=f"padding: {SPACING['lg']};"
+                                    ),
+                                ),
+                                # Payback Period Holder
+                                card(
+                                    ui.div(
+                                        ui.div(
+                                            ui.span("Payback Period Price", style="font-weight: 600; display: block; margin-bottom: 0.5rem;"),
+                                            ui.span(ui.output_text("price_payback"), style=f"font-size: 1.75rem; font-weight: 700; color: {COLORS['warning']};"),
+                                            ui.p("Years for earnings to recover investment", style=f"color: {COLORS['gray']}; font-size: 0.85rem; margin-top: {SPACING['sm']};"),
+                                            style=f"padding: {SPACING['md']}; text-align: center; background: {COLORS['light']}; border-radius: var(--border-radius-md);"
+                                        ),
+                                        style=f"padding: {SPACING['lg']};"
+                                    ),
+                                ),
+                                # Recommended Buy Price Holder
+                                card(
+                                    ui.div(
+                                        ui.div(
+                                            ui.span("Recommended Buy Price", style="font-weight: 600; display: block; margin-bottom: 0.5rem;"),
+                                            ui.span(ui.output_text("price_buy"), style=f"font-size: 1.75rem; font-weight: 700; color: {COLORS['success']};"),
+                                            ui.p("Optimal entry point with margin of safety", style=f"color: {COLORS['gray']}; font-size: 0.85rem; margin-top: {SPACING['sm']};"),
+                                            style=f"padding: {SPACING['md']}; text-align: center; background: {COLORS['light']}; border-radius: var(--border-radius-md);"
+                                        ),
+                                        style=f"padding: {SPACING['lg']};"
+                                    ),
+                                ),
+                                style=f"display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: {SPACING['lg']};"
+                            ),
+                        ),
+                        
+                        style=f"padding: {SPACING['lg']};"
+                    )
+                )
+            )
+        ),
+        
         # Models page
         ui.nav_panel(
             "Models",
@@ -303,8 +446,7 @@ def create_ui():
         
         title=APP_NAME,
         navbar_options=ui.navbar_options(
-            inverse=False,
             position="fixed-top"
         ),
-        theme=None,
+        theme="bootstrap",
     )

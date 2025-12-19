@@ -3,14 +3,15 @@ Reusable UI components for Stock Analyzer
 """
 
 from shiny import ui
-from config import COLORS, SPACING, TYPOGRAPHY, BORDER_RADIUS
+from config.theme import COLORS, SPACING, TYPOGRAPHY, BORDER_RADIUS
 
 
 def card(
     *args,
-    title: str = None,
-    subtitle: str = None,
+    title: str|None = None,
+    subtitle: str|None = None,
     class_: str = "",
+    style: str = "",
     **kwargs
 ):
     """
@@ -21,6 +22,7 @@ def card(
         title: Card title
         subtitle: Card subtitle
         class_: Additional CSS classes
+        style: Additional inline styles
         **kwargs: Additional card arguments
     
     Returns:
@@ -47,22 +49,27 @@ def card(
             )
         )
     
+    card_style = f"""
+        background: {COLORS['white']};
+        border: 1px solid #E0E0E0;
+        border-radius: {BORDER_RADIUS['lg']};
+        padding: {SPACING['lg']};
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    """
+    
+    if style:
+        card_style += style
+    
     return ui.div(
         *header_content,
         *args,
-        style=f"""
-            background: {COLORS['white']};
-            border: 1px solid #E0E0E0;
-            border-radius: {BORDER_RADIUS['lg']};
-            padding: {SPACING['lg']};
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        """,
+        style=card_style,
         class_=class_,
         **kwargs
     )
 
 
-def button_primary(label: str, id_: str = None, **kwargs):
+def button_primary(label: str, id_: str = "", **kwargs):
     """Create a primary button"""
     return ui.input_action_button(
         id_,
@@ -79,7 +86,7 @@ def button_primary(label: str, id_: str = None, **kwargs):
     )
 
 
-def button_secondary(label: str, id_: str = None, **kwargs):
+def button_secondary(label: str, id_: str = "", **kwargs):
     """Create a secondary button"""
     return ui.input_action_button(
         id_,
@@ -146,7 +153,7 @@ def metric_grid(*metrics, class_: str = ""):
     )
 
 
-def section_header(title: str, subtitle: str = None):
+def section_header(title: str, subtitle: str|None = None):
     """
     Create a section header
     

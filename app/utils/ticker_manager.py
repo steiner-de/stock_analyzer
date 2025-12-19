@@ -10,8 +10,10 @@ import json
 from datetime import datetime
 from typing import List, Optional
 from pathlib import Path
+import os
 
 from config.settings import get_data_path
+
 from .database import get_db_connection, get_cache, set_cache
 
 
@@ -38,21 +40,30 @@ class TickerManager:
             Pandas DataFrame with ticker data or None if failed
         """
         try:
-            response = requests.get(self.json_url, timeout=10)
+            # SEC EDGAR requires User-Agent header with contact info
+            headers = {
+                'User-Agent': f'Stock Analyzer ({os.environ.get("SEC_EMAIL", "app@stock-analyzer.local")})'
+            }
+            response = requests.get(self.json_url, headers=headers, timeout=10)
             response.raise_for_status()
             
             data = response.json()
             
-            # Handle both list and dict responses
-            if isinstance(data, dict):
-                data = data.get('tickers', data.get('data', []))
+            # SEC returns dict with company CIK as keys, convert to list
+            if isinstance(data, dict) and not isinstance(data, list):
+                # Extract values from dict
+                data = list(data.values())
             
             df = pd.DataFrame(data)
             
             # Ensure required columns
-            required_cols = ['symbol', 'name']
+            required_cols = ['ticker', 'title']  # SEC uses 'ticker' and 'title'
             if not all(col in df.columns for col in required_cols):
-                raise ValueError(f"Missing required columns: {required_cols}")
+                # Try alternative column names
+                if 'symbol' not in df.columns and 'ticker' in df.columns:
+                    df = df.rename(columns={'ticker': 'symbol'})
+                if 'name' not in df.columns and 'title' in df.columns:
+                    df = df.rename(columns={'title': 'name'})
             
             return df
             
@@ -121,7 +132,8 @@ class TickerManager:
             for col in optional_cols:
                 if col not in df.columns:
                     df[col] = None
-                df[col] = df[col].where(pd.notna(df[col]), None)
+                else:
+                    df[col] = df[col].fillna(value=pd.NA)
             
             # Write to database
             df.to_sql('tickers', conn, if_exists='replace', index=False)
